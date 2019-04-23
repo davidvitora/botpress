@@ -28,12 +28,14 @@ async function extractQnAData() {
     'botId': event.botId
   }).first();
 
-  if (data.session_data.lastMessages[0].replySource.startsWith('qna ')) {
-    const id = data.session_data.lastMessages[0].replySource.replace('qna __qna__', '')
+  const last_index = data.session_data.lastMessages.length - 1
+
+  if (data.session_data.lastMessages[last_index].replySource.startsWith('qna ')) {
+    const id = data.session_data.lastMessages[last_index].replySource.replace('qna __qna__', '')
     const { data: qna } = await axios.get(`/mod/qna/questions/${id}`, await bp.http.getAxiosConfigForBot(event.botId, { localUrl: true }))
     const question_text = qna.data.questions[0]
-    setVariable('session', 'qna_last_answer', { text: question_text, id: data.session_data.lastMessages[0].replySource.slice(4) })
-    setVariable('session', 'qna_last_question', data.session_data.lastMessages[0].incomingPreview)
+    setVariable('session', 'qna_last_answer', { text: question_text, id: data.session_data.lastMessages[last_index].replySource.slice(4) })
+    setVariable('session', 'qna_last_question', data.session_data.lastMessages[last_index].incomingPreview)
   }
 
 }
