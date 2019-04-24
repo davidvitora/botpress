@@ -44,10 +44,11 @@ export default async (bp: typeof sdk) => {
   })
 
   router.post('/registry/delete', async (req, res) => {
-    const { data_key, dateBegin, dateEnd, deleteAll } = req.body
+    const { data_key, category, dateBegin, dateEnd, deleteAll } = req.body
     const { botId } = req.params;
     const query = knex('registry_books')
       .where('data_key', data_key)
+      .where('category', category)
       .where('botId', botId).clone()
 
     // Will consider date

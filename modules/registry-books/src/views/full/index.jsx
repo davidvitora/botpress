@@ -103,7 +103,7 @@ export default class RegistryBooksRoot extends React.Component {
 
     if (confirm) {
       this.modifyCategory(category.category, { deleting: registry.data_key })
-      this.props.bp.axios.post('/mod/registry-books/registry/delete', { data_key: registry.data_key, dateBegin, dateEnd, deleteAll }).then(() => {
+      this.props.bp.axios.post('/mod/registry-books/registry/delete', { data_key: registry.data_key, category: category.category, dateBegin, dateEnd, deleteAll }).then(() => {
         this.modifyCategory(category.category, { deleting: undefined })
         this.updateCategory(category.category, category.registry_count - 1, category.offset);
       })
