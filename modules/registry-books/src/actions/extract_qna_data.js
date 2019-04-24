@@ -23,10 +23,15 @@ const setVariable = async (type, name, value) => {
 };
 
 async function extractQnAData() {
-  const data = await bp.database('dialog_sessions').where({
-    'id': `api::${event.target}`,
-    'botId': event.botId
-  }).first();
+  const data = await bp.database('dialog_sessions')
+    .where({
+      'id': `api::${event.target}`,
+      'botId': event.botId
+    })
+    .orWhere({
+      'id': `web::${event.target}::${event.threadId}`,
+      'botId': event.botId
+    }).first();
 
   const last_index = data.session_data.lastMessages.length - 1
 
