@@ -8,6 +8,12 @@ import ms from 'ms'
 
 import Container from './components/Container'
 
+import { IntlProvider, addLocaleData } from "react-intl"
+import pt from 'react-intl/locale-data/pt'
+import en from 'react-intl/locale-data/en'
+import Translations from './translations'
+addLocaleData([...pt, ...en])
+
 const _values = obj => Object.keys(obj).map(x => obj[x])
 
 if (!window.location.origin) {
@@ -568,28 +574,30 @@ export default class Web extends React.Component {
 
   renderSide() {
     return (
-      <Container
-        bp={this.props.bp}
-        config={this.state.config}
-        text={this.state.textToSend}
-        fullscreen={this.props.fullscreen}
-        transition={!this.props.fullscreen ? this.state.sideTransition : null}
-        unreadCount={this.state.unreadCount}
-        currentConversation={this.state.currentConversation}
-        conversations={this.state.conversations}
-        onClose={!this.props.fullscreen ? this.handleClosePanel : null}
-        onResetSession={this.handleSessionReset}
-        onSwitchConvo={this.handleSwitchConvo}
-        onTextSend={this.handleSendMessage}
-        recallHistory={this.handleRecallHistory}
-        onTextChanged={this.handleTextChanged}
-        onFileUpload={this.handleFileUpload}
-        onSendData={this.handleSendData}
-        downloadConversation={this.downloadConversation}
-        createConversation={this.createConversation}
-        botInfo={this.state.botInfo}
-        botName={this.state.botInfo.name || this.state.config.botName || 'Bot'}
-      />
+      <IntlProvider locale={this.state.config.locale} messages={Translations[this.state.config.locale]}>
+        <Container
+          bp={this.props.bp}
+          config={this.state.config}
+          text={this.state.textToSend}
+          fullscreen={this.props.fullscreen}
+          transition={!this.props.fullscreen ? this.state.sideTransition : null}
+          unreadCount={this.state.unreadCount}
+          currentConversation={this.state.currentConversation}
+          conversations={this.state.conversations}
+          onClose={!this.props.fullscreen ? this.handleClosePanel : null}
+          onResetSession={this.handleSessionReset}
+          onSwitchConvo={this.handleSwitchConvo}
+          onTextSend={this.handleSendMessage}
+          recallHistory={this.handleRecallHistory}
+          onTextChanged={this.handleTextChanged}
+          onFileUpload={this.handleFileUpload}
+          onSendData={this.handleSendData}
+          downloadConversation={this.downloadConversation}
+          createConversation={this.createConversation}
+          botInfo={this.state.botInfo}
+          botName={this.state.botInfo.name || this.state.config.botName || 'Bot'}
+        />
+      </IntlProvider>
     )
   }
 
