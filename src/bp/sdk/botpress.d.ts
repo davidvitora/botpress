@@ -89,7 +89,7 @@ declare module 'botpress/sdk' {
     /**
      * Called when the module is unloaded, before being reloaded
      * onBotUnmount is called for each bots before this one is called
-     * */
+     */
     onModuleUnmount?: (bp: typeof import('botpress/sdk')) => void
     onFlowChanged?: (bp: typeof import('botpress/sdk'), botId: string, flow: Flow) => void
     /**
@@ -293,7 +293,8 @@ declare module 'botpress/sdk' {
 
     export interface SlotDefinition {
       name: string
-      entity: string
+      entities?: string[]
+      entity?: string
     }
 
     export interface IntentDefinition {
@@ -515,6 +516,7 @@ declare module 'botpress/sdk' {
     }
 
     export interface DialogTurnHistory {
+      eventId: string
       incomingPreview: string
       replySource: string
       replyPreview: string
@@ -1239,5 +1241,20 @@ declare module 'botpress/sdk' {
     export function saveFile(botId: string, fileName: string, content: Buffer): Promise<string>
     export function readFile(botId, fileName): Promise<Buffer>
     export function getFilePath(botId: string, fileName: string): string
+
+    /**
+     * Mustache template to render. Can contain objects, arrays, strings.
+     * @example '{{en}}', ['{{nested.de}}'], {notSoNested: '{{fr}}'}
+     */
+    export type TemplateItem = Object | Object[] | string[] | string
+
+    /**
+     * Render a template using Mustache template rendering.
+     * Use recursive template rendering to extract nexted templates.
+     *
+     * @param item TemplateItem to render
+     * @param context Variables to use for the template rendering
+     */
+    export function renderTemplate(item: TemplateItem, context): TemplateItem
   }
 }
