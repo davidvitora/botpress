@@ -46,31 +46,32 @@ export const initModule = async (bp: typeof sdk, botScopedStorage: Map<string, Q
     const payloads = []
 
     if (question.action.includes('text')) {
-      const electedAnswer = getAlternativeAnswer(question)
-      let args: any = {
-        user: _.get(event, 'state.user') || {},
-        session: _.get(event, 'state.session') || {},
-        temp: _.get(event, 'state.temp') || {}
-      }
-
-      if (electedAnswer.contentId) {
-        renderer = `!${electedAnswer.contentId}`
-      } else {
-        args = {
-          ...args,
-          text: electedAnswer,
-          typing: true
+      for (let answer of question.answers) {
+        let args: any = {
+          user: _.get(event, 'state.user') || {},
+          session: _.get(event, 'state.session') || {},
+          temp: _.get(event, 'state.temp') || {}
         }
+
+        if (answer.contentId) {
+          renderer = `!${answer.contentId}`
+        } else {
+          args = {
+            ...args,
+            text: answer,
+            typing: true
+          }
+        }
+
+        const element = await bp.cms.renderElement(renderer, args, {
+          botId: event.botId,
+          channel: event.channel,
+          target: event.target,
+          threadId: event.threadId
+        })
+
+        payloads.push(...element)
       }
-
-      const element = await bp.cms.renderElement(renderer, args, {
-        botId: event.botId,
-        channel: event.channel,
-        target: event.target,
-        threadId: event.threadId
-      })
-
-      payloads.push(...element)
     }
 
     if (question.action.includes('redirect')) {
