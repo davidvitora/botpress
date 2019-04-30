@@ -15,6 +15,7 @@ import ContentElementOutput from 'expose-loader?ContentElementOutput!~/component
 import { Provider } from 'react-redux'
 import SelectActionDropdown from 'expose-loader?SelectActionDropdown!~/views/FlowBuilder/nodeProps/SelectActionDropdown'
 import { BotpressTooltip } from 'expose-loader?BotpressTooltip!~/components/Shared/Tooltip'
+import { LinkDocumentationProvider } from 'expose-loader?DocumentationProvider!~/components/Util/DocumentationProvider'
 /* eslint-enable */
 
 import store from './store'
