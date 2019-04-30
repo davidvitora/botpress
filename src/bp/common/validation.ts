@@ -1,6 +1,6 @@
 import Joi from 'joi'
 
-export const BOTID_REGEX = /^[A-Z0-9]+[A-Z0-9_-]{2,}[A-Z0-9]+$/i
+export const BOTID_REGEX = /^[A-Z0-9]+[A-Z0-9_-]{1,}[A-Z0-9]+$/i
 
 export const isValidBotId = (botId: string): boolean => BOTID_REGEX.test(botId)
 
@@ -9,14 +9,14 @@ export const BotCreationSchema = Joi.object().keys({
     .regex(BOTID_REGEX)
     .required(),
   name: Joi.string()
-    .min(3)
     .max(50)
-    .required(),
+    .allow('')
+    .optional(),
   // tslint:disable-next-line:no-null-keyword
   category: Joi.string().allow(null),
   description: Joi.string()
-    .min(3)
-    .max(50),
+    .max(250)
+    .allow(''),
   pipeline_status: {
     current_stage: {
       promoted_by: Joi.string(),
@@ -29,17 +29,23 @@ export const BotCreationSchema = Joi.object().keys({
 
 export const BotEditSchema = Joi.object().keys({
   name: Joi.string()
-    .min(3)
-    .max(50)
-    .required(),
+    .allow('')
+    .max(50),
   // tslint:disable-next-line:no-null-keyword
   category: Joi.string().allow(null),
   description: Joi.string()
-    .min(3)
-    .max(50)
-    .required(),
+    .max(250)
+    .allow(''),
   disabled: Joi.bool(),
   private: Joi.bool(),
+  defaultLanguage: Joi.string()
+    .min(2)
+    .max(3),
+  languages: Joi.array().items(
+    Joi.string()
+      .min(2)
+      .max(3)
+  ),
   details: {
     website: Joi.string()
       .uri()

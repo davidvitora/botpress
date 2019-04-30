@@ -62,7 +62,7 @@ export class ConfigProvider {
     await this.ghostService.forBot(botId).upsertFile('/', 'bot.config.json', JSON.stringify(config, undefined, 2))
   }
 
-  async mergeBotConfig(botId, partialConfig: PartialDeep<BotConfig>): Promise<BotConfig> {
+  async mergeBotConfig(botId: string, partialConfig: PartialDeep<BotConfig>): Promise<BotConfig> {
     const originalConfig = await this.getBotConfig(botId)
     const config = _.merge(originalConfig, partialConfig)
     await this.setBotConfig(botId, config)
@@ -105,7 +105,7 @@ export class ConfigProvider {
   }
 
   public async getModulesListConfig() {
-    const enabledByDefault = ['analytics', 'basic-skills', 'builtin', 'channel-web', 'nlu', 'qna']
+    const enabledByDefault = ['analytics', 'basic-skills', 'builtin', 'channel-web', 'nlu', 'qna', 'extensions']
 
     // here it's ok to use the module resolver because we are discovering the built-in modules only
     const resolver = new ModuleResolver(this.logger)

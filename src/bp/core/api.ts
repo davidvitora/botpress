@@ -10,6 +10,7 @@ import { container } from './app.inversify'
 import { ConfigProvider } from './config/config-loader'
 import Database from './database'
 import { LoggerProvider } from './logger'
+import { renderRecursive } from './misc/templating'
 import { ModuleLoader } from './module-loader'
 import { SessionRepository, UserRepository } from './repositories'
 import { Event, RealTimePayload } from './sdk/impl'
@@ -39,6 +40,7 @@ const http = (httpServer: HTTPServer): typeof sdk.http => {
       const defaultRouterOptions = { checkAuthentication: true, enableJsonBodyParser: true }
       return httpServer.createRouterForBot(routerName, options || defaultRouterOptions)
     },
+    deleteRouterForBot: httpServer.deleteRouterForBot.bind(httpServer),
     async getAxiosConfigForBot(botId: string, options?: sdk.AxiosOptions): Promise<any> {
       return httpServer.getAxiosConfigForBot(botId, options)
     },
@@ -56,6 +58,7 @@ const event = (eventEngine: EventEngine): typeof sdk.events => {
     registerMiddleware(middleware: sdk.IO.MiddlewareDefinition) {
       eventEngine.register(middleware)
     },
+    removeMiddleware: eventEngine.removeMiddleware.bind(eventEngine),
     sendEvent(event: sdk.IO.Event): void {
       eventEngine.sendEvent(event)
     },
@@ -117,6 +120,7 @@ const users = (userRepo: UserRepository): typeof sdk.users => {
   return {
     getOrCreateUser: userRepo.getOrCreate.bind(userRepo),
     updateAttributes: userRepo.updateAttributes.bind(userRepo),
+    setAttributes: userRepo.setAttributes.bind(userRepo),
     getAllUsers: userRepo.getAllUsers.bind(userRepo),
     getUserCount: userRepo.getUserCount.bind(userRepo)
   }
@@ -173,29 +177,17 @@ const ghost = (ghostService: GhostService): typeof sdk.ghost => {
 
 const cms = (cmsService: CMSService, mediaService: MediaService): typeof sdk.cms => {
   return {
-    getContentElement(botId: string, id: string): Promise<any> {
-      return cmsService.getContentElement(botId, id)
-    },
-    getContentElements(botId: string, ids: string[]): Promise<any[]> {
-      return cmsService.getContentElements(botId, ids)
-    },
-    listContentElements(botId: string, contentTypeId?: string, searchParams?: sdk.SearchParams): Promise<any> {
-      return cmsService.listContentElements(botId, contentTypeId, searchParams)
-    },
+    getContentElement: cmsService.getContentElement.bind(cmsService),
+    getContentElements: cmsService.getContentElements.bind(cmsService),
+    listContentElements: cmsService.listContentElements.bind(cmsService),
+    deleteContentElements: cmsService.deleteContentElements.bind(cmsService),
     getAllContentTypes(botId?: string): Promise<any[]> {
       return cmsService.getAllContentTypes(botId)
     },
     renderElement(contentId: string, args: any, eventDestination: sdk.IO.EventDestination): Promise<any> {
       return cmsService.renderElement(contentId, args, eventDestination)
     },
-    createOrUpdateContentElement(
-      botId: string,
-      contentTypeId: string,
-      formData: string,
-      contentElementId?: string
-    ): Promise<string> {
-      return cmsService.createOrUpdateContentElement(botId, contentTypeId, formData, contentElementId)
-    },
+    createOrUpdateContentElement: cmsService.createOrUpdateContentElement.bind(cmsService),
     async saveFile(botId: string, fileName: string, content: Buffer): Promise<string> {
       return mediaService.saveFile(botId, fileName, content)
     },
@@ -204,6 +196,9 @@ const cms = (cmsService: CMSService, mediaService: MediaService): typeof sdk.cms
     },
     getFilePath(botId: string, fileName: string): string {
       return mediaService.getFilePath(botId, fileName)
+    },
+    renderTemplate(templateItem: sdk.cms.TemplateItem, context): sdk.cms.TemplateItem {
+      return renderRecursive(templateItem, context)
     }
   }
 }

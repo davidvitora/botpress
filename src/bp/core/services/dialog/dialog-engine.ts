@@ -16,7 +16,7 @@ const debug = DEBUG('dialog')
 
 @injectable()
 export class DialogEngine {
-  public onProcessingError: ((err: ProcessingError) => void) | undefined
+  public onProcessingError: ((err: ProcessingError, hideStack: boolean) => void) | undefined
 
   private _flowsByBot: Map<string, FlowView[]> = new Map()
 
@@ -191,10 +191,13 @@ export class DialogEngine {
         // TODO: drop previousFlow/previousNode in favor of jumpPoints
         previousFlow: event.state.context.currentFlow,
         previousNode: event.state.context.currentNode,
-        jumpPoints: [...(event.state.context.jumpPoints || []), {
-          flow: event.state.context.currentFlow,
-          node: event.state.context.currentNode
-        }]
+        jumpPoints: [
+          ...(event.state.context.jumpPoints || []),
+          {
+            flow: event.state.context.currentFlow,
+            node: event.state.context.currentNode
+          }
+        ]
       }
 
       this._logEnterFlow(
@@ -273,10 +276,13 @@ export class DialogEngine {
       currentNode: subflowStartNode.name,
       previousFlow: parentFlow.name,
       previousNode: parentNode.name,
-      jumpPoints: [...(event.state.context.jumpPoints || []), {
-        flow: parentFlow.name,
-        node: parentNode.name
-      }]
+      jumpPoints: [
+        ...(event.state.context.jumpPoints || []),
+        {
+          flow: parentFlow.name,
+          node: parentNode.name
+        }
+      ]
     }
 
     return this.processEvent(sessionId, event)
@@ -313,7 +319,10 @@ export class DialogEngine {
     const flowName = _.get(event, 'state.context.currentFlow', 'N/A')
     const instructionDetails = instruction.fn || instruction.type
     this.onProcessingError &&
-      this.onProcessingError(new ProcessingError(error.message, botId, nodeName, flowName, instructionDetails))
+      this.onProcessingError(
+        new ProcessingError(error.message, botId, nodeName, flowName, instructionDetails),
+        error.hideStack
+      )
   }
 
   private _logDebug(botId: string, target: string, action: string, args?: any) {
