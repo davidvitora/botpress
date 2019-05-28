@@ -229,6 +229,7 @@ export class BotService {
           await this.unmountBot(botId)
         }
         await this.configProvider.mergeBotConfig(botId, newConfigs)
+        await this.workspaceService.addBotRef(botId)
         await this.mountBot(botId)
         this.logger.info(`Import of bot ${botId} successful`)
       } else {
@@ -347,7 +348,7 @@ export class BotService {
     delete newBot.pipeline_status.stage_request
 
     try {
-      await this.duplicateBot(initialBot.id, newBot.id)
+      await this.duplicateBot(initialBot.id, newBot.id, true)
       await this.configProvider.setBotConfig(newBot.id, newBot)
 
       delete initialBot.pipeline_status.stage_request
