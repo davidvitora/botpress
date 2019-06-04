@@ -182,7 +182,7 @@ export class BotsRouter extends CustomRouter {
 
     router.post(
       '/:botId/import',
-      this.asyncMiddleware(async (req, res) => {
+      this.asyncMiddleware(async (req, res => {
         const buffers: any[] = []
         req.on('data', chunk => {
           buffers.push(chunk)
