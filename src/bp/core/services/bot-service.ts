@@ -192,7 +192,7 @@ export class BotService {
     return this.ghostService.forBot(botId).exportToArchiveBuffer('models/*')
   }
 
-  async importBot(botId: string, archive: Buffer, allowOverwrite?: boolean): Promise<void> {
+  async importBot(botId: string, archive: Buffer, allowOverwrite?: boolean, timeout = 100000): Promise<void> {
     if (await this.botExists(botId)) {
       if (!allowOverwrite) {
         return this.logger.error(`Cannot import the bot ${botId}, it already exists, and overwrite is not allowed`)
