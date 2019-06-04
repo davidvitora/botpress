@@ -180,7 +180,7 @@ export class BotService {
 
     // This will regenerate previews for all the bot's languages
     if (actualBot.languages !== updatedBot.languages) {
-      this.cms.recomputeElementsForBot(botId)
+      await this.cms.recomputeElementsForBot(botId)
     }
 
     if (!actualBot.disabled && updatedBot.disabled) {
@@ -192,7 +192,7 @@ export class BotService {
     return this.ghostService.forBot(botId).exportToArchiveBuffer('models/*')
   }
 
-  async importBot(botId: string, archive: Buffer, allowOverwrite?: boolean): Promise<void> {
+  async importBot(botId: string, archive: Buffer, allowOverwrite?: boolean, timeout = 1000000): Promise<void> {
     if (await this.botExists(botId)) {
       if (!allowOverwrite) {
         return this.logger.error(`Cannot import the bot ${botId}, it already exists, and overwrite is not allowed`)
@@ -452,7 +452,7 @@ export class BotService {
     }
 
     await this.cms.unloadContentElementsForBot(botId)
-    this.moduleLoader.unloadModulesForBot(botId)
+    await this.moduleLoader.unloadModulesForBot(botId)
 
     const api = await createForGlobalHooks()
     await this.hookService.executeHook(new Hooks.AfterBotUnmount(api, botId))
