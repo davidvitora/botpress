@@ -5,10 +5,10 @@ title: Release Notes
 
 ## Bug fixes
 
-- Fix dialog engine timeout process
-- Fix missing typings in SDK
-- NLU Training sequence now use multiple entities
-- NLU Exact intent matcher is now based on given utterance
+- Use content picker for invalid content in Choice Skill
+- Fix issue on Call API Skill where headers would not save
+- Display last user visit in HITL
+- Display quick replies in HITL
 
 ## Changelog
 

@@ -1,22 +1,155 @@
-## [11.8.4](https://github.com/botpress/botpress/compare/v11.8.3...v11.8.4) (2019-04-30)
+## [11.9.6](https://github.com/botpress/botpress/compare/v11.9.5...v11.9.6) (2019-07-01)
 
 
 ### Bug Fixes
 
-* **channel-web:** added cookie fallback ([109f5f3](https://github.com/botpress/botpress/commit/109f5f3))
-* **channel-web:** starting new convo when not found ([182b2d8](https://github.com/botpress/botpress/commit/182b2d8))
-* jump to timeout node ([3a00dc7](https://github.com/botpress/botpress/commit/3a00dc7))
-* missing typing in sdk ([ff18810](https://github.com/botpress/botpress/commit/ff18810))
-* timeout fake event ([dc16c5b](https://github.com/botpress/botpress/commit/dc16c5b))
-* **nlu:** training seq to use multiple entities ([d4c1947](https://github.com/botpress/botpress/commit/d4c1947))
+* **call-api:** missing headers on reload ([6f46a37](https://github.com/botpress/botpress/commit/6f46a37))
+* **call-api:** missing headers on reload ([71611ef](https://github.com/botpress/botpress/commit/71611ef))
+* **choices:** use content picker and fix retry attempts ([ad4ea28](https://github.com/botpress/botpress/commit/ad4ea28))
+* **hitl:** added trim in hitl textarea ([f28eb08](https://github.com/botpress/botpress/commit/f28eb08))
+* **hitl:** added trim in hitl textarea ([d3e0eaf](https://github.com/botpress/botpress/commit/d3e0eaf))
+* **hitl:** display last user visit ([0694c2a](https://github.com/botpress/botpress/commit/0694c2a))
+* **hitl:** display messages of type quick_reply in hitl module ([b38d426](https://github.com/botpress/botpress/commit/b38d426))
+* **hitl:** render quick replies in hitl module ([941037f](https://github.com/botpress/botpress/commit/941037f))
 
 
 ### Features
 
-* **dialog-engine:** set channel name dinamically ([e86ca6d](https://github.com/botpress/botpress/commit/e86ca6d))
-* **nlu:** exact intent matcher given utterance ([3b1a2fe](https://github.com/botpress/botpress/commit/3b1a2fe))
+* **hitl:** display last user visit ([262de34](https://github.com/botpress/botpress/commit/262de34))
 
 
+
+## [11.9.5](https://github.com/botpress/botpress/compare/v11.9.4...v11.9.5) (2019-06-21)
+
+
+### Bug Fixes
+
+* **core:** added memory cache limits ([4732f3f](https://github.com/botpress/botpress/commit/4732f3f))
+* **core:** object caching uses proper key ([ef3c460](https://github.com/botpress/botpress/commit/ef3c460))
+* **hitl:** pause on quick reply ([c3edfbd](https://github.com/botpress/botpress/commit/c3edfbd))
+* **hitl:** swallow quick reply message type ([1392d97](https://github.com/botpress/botpress/commit/1392d97))
+* **messenger:** typing indicators and postback button ([9aadeb9](https://github.com/botpress/botpress/commit/9aadeb9))
+* continue instead of return ([07f4a5a](https://github.com/botpress/botpress/commit/07f4a5a))
+* validate entry.messaging exists ([99aae8b](https://github.com/botpress/botpress/commit/99aae8b))
+* validate entry.messaging exists ([5307500](https://github.com/botpress/botpress/commit/5307500))
+* **pro:** fixed "built with pro" variable ([9183293](https://github.com/botpress/botpress/commit/9183293))
+* **pro:** fixed "built with pro" variable ([9ebe1d8](https://github.com/botpress/botpress/commit/9ebe1d8))
+* **webchat:** scroll to the very bottom of the chat on open ([44857fd](https://github.com/botpress/botpress/commit/44857fd))
+* **webchat:** scroll to the very bottom of the chat on open ([d5b3045](https://github.com/botpress/botpress/commit/d5b3045))
+
+
+
+## [11.9.4](https://github.com/botpress/botpress/compare/v11.9.3...v11.9.4) (2019-06-12)
+
+
+### Bug Fixes
+
+* do not create revisions for models ([4347826](https://github.com/botpress/botpress/commit/4347826))
+* dont record revisions for botpress and workspaces configs ([b60f5c1](https://github.com/botpress/botpress/commit/b60f5c1))
+* expose getAttributes from UserRepository ([82ddeca](https://github.com/botpress/botpress/commit/82ddeca))
+* Expose getAttributes from UserRepository ([e2faeee](https://github.com/botpress/botpress/commit/e2faeee))
+* Expose getAttributes from UserRepository ([10fb6ef](https://github.com/botpress/botpress/commit/10fb6ef))
+* **core:** resources-loader doesn't over-create files ([b21c311](https://github.com/botpress/botpress/commit/b21c311))
+* ghost use soft delete when deleting a folder ([c026d03](https://github.com/botpress/botpress/commit/c026d03))
+* null context_expiry caused sessions to never timeout ([1d558eb](https://github.com/botpress/botpress/commit/1d558eb))
+* **core:** resources-loader doesn't over-create files ([38ae8d7](https://github.com/botpress/botpress/commit/38ae8d7))
+* **hooks:** before session timeout not being executed ([951ba9b](https://github.com/botpress/botpress/commit/951ba9b))
+* **testing:** made ghost always dirty with duplicate .recorder.js ([fbb1c24](https://github.com/botpress/botpress/commit/fbb1c24))
+* **tests:** fixed memory queue tests ([61445d7](https://github.com/botpress/botpress/commit/61445d7))
+
+
+### Features
+
+* **channel-web:** configurable messages history ([d52d455](https://github.com/botpress/botpress/commit/d52d455))
+* **core:** added security namespace ([e5eb2e4](https://github.com/botpress/botpress/commit/e5eb2e4))
+* **web:** added ability to create trusted reference ([14d8cb6](https://github.com/botpress/botpress/commit/14d8cb6))
+
+
+
+## [11.9.3](https://github.com/botpress/botpress/compare/v11.9.2...v11.9.3) (2019-06-06)
+
+
+### Bug Fixes
+
+* **basic-skills:** synthax error ([04a32e4](https://github.com/botpress/botpress/commit/04a32e4))
+* **core:** removed machineV1 fingerprint ([b69ea15](https://github.com/botpress/botpress/commit/b69ea15))
+* **pro:** licensing on openshift ([a6ae4ff](https://github.com/botpress/botpress/commit/a6ae4ff))
+
+
+
+## [11.9.2](https://github.com/botpress/botpress/compare/v11.9.1...v11.9.2) (2019-06-05)
+
+
+### Bug Fixes
+
+* **core:** added flow cache invalidation ([f1ca9ef](https://github.com/botpress/botpress/commit/f1ca9ef))
+* **core:** missing file ([f92ae68](https://github.com/botpress/botpress/commit/f92ae68))
+* **pro:** SAML authentication options ([d22bd16](https://github.com/botpress/botpress/commit/d22bd16))
+* **qna:** remove qna file when qna is disabled ([1d3569f](https://github.com/botpress/botpress/commit/1d3569f))
+* **qna:** remove qna file when qna is disabled ([614d66e](https://github.com/botpress/botpress/commit/614d66e))
+* **slot:** fix max attempt check ([ca703e8](https://github.com/botpress/botpress/commit/ca703e8))
+
+
+### Features
+
+* **core:** add .ghostignore to exclude files from tracking ([387668e](https://github.com/botpress/botpress/commit/387668e))
+
+
+
+## [11.9.1](https://github.com/botpress/botpress/compare/v11.9.0...v11.9.1) (2019-05-31)
+
+
+### Bug Fixes
+
+* **admin:** Enable overwrite destination on copy ([72af1e7](https://github.com/botpress/botpress/commit/72af1e7))
+* **core:** fixes checksum check of ghost in DB driver ([6c45eb6](https://github.com/botpress/botpress/commit/6c45eb6))
+* **nlu:** missing source value ([01abed8](https://github.com/botpress/botpress/commit/01abed8))
+* **nlu:** prevent token duplicates in source ([46cd03b](https://github.com/botpress/botpress/commit/46cd03b))
+
+
+
+# [11.9.0](https://github.com/botpress/botpress/compare/v11.8.4...v11.9.0) (2019-05-15)
+
+### Bug Fixes
+
+- **core:** added red-hat binaries ([1304306](https://github.com/botpress/botpress/commit/1304306))
+- slot modal not loading when editing ([b1cc881](https://github.com/botpress/botpress/commit/b1cc881))
+- **core:** module extraction ([f2d1c9d](https://github.com/botpress/botpress/commit/f2d1c9d))
+- **core:** passing more ENV to hooks and actions ([142acb7](https://github.com/botpress/botpress/commit/142acb7))
+- **core:** unpacker fall back to move if rename fails ([7aa7e01](https://github.com/botpress/botpress/commit/7aa7e01))
+- **docker:** duckling run cmd ([6528f1f](https://github.com/botpress/botpress/commit/6528f1f))
+- **docker:** fixed user permissions ([df42b69](https://github.com/botpress/botpress/commit/df42b69))
+- **ghost:** added method to rename file & fix dir listing with dot ([9581ee0](https://github.com/botpress/botpress/commit/9581ee0))
+- **module:** added permissions for modules ([3d2d92d](https://github.com/botpress/botpress/commit/3d2d92d))
+- **modules:** disabling module resources when parent mod is disabled ([701af91](https://github.com/botpress/botpress/commit/701af91))
+- **redis:** switch from node-redis to ioredis ([9c1239d](https://github.com/botpress/botpress/commit/9c1239d))
+- **skills:** fixed slot extraction skill ([f5cd610](https://github.com/botpress/botpress/commit/f5cd610))
+- **ui-studio:** better disabled toolbar items ([42f1ac3](https://github.com/botpress/botpress/commit/42f1ac3))
+
+### Features
+
+- **admin:** white label / custom css ([1b194a7](https://github.com/botpress/botpress/commit/1b194a7))
+- **channel-web:** internationalization ([43b4ff1](https://github.com/botpress/botpress/commit/43b4ff1))
+- **code-editor:** Edit actions directly in the studio ([4e11d2d](https://github.com/botpress/botpress/commit/4e11d2d))
+- **sdk:** added method to enable or disable hooks (beta) ([39050d0](https://github.com/botpress/botpress/commit/39050d0))
+- add reset slot action ([345d90f](https://github.com/botpress/botpress/commit/345d90f))
+- conversation scenarios ([3980987](https://github.com/botpress/botpress/commit/3980987))
+
+## [11.8.4](https://github.com/botpress/botpress/compare/v11.8.3...v11.8.4) (2019-04-30)
+
+### Bug Fixes
+
+- **channel-web:** added cookie fallback ([109f5f3](https://github.com/botpress/botpress/commit/109f5f3))
+- **channel-web:** starting new convo when not found ([182b2d8](https://github.com/botpress/botpress/commit/182b2d8))
+- jump to timeout node ([3a00dc7](https://github.com/botpress/botpress/commit/3a00dc7))
+- missing typing in sdk ([ff18810](https://github.com/botpress/botpress/commit/ff18810))
+- timeout fake event ([dc16c5b](https://github.com/botpress/botpress/commit/dc16c5b))
+- **nlu:** training seq to use multiple entities ([d4c1947](https://github.com/botpress/botpress/commit/d4c1947))
+
+### Features
+
+- **dialog-engine:** set channel name dinamically ([e86ca6d](https://github.com/botpress/botpress/commit/e86ca6d))
+- **nlu:** exact intent matcher given utterance ([3b1a2fe](https://github.com/botpress/botpress/commit/3b1a2fe))
 
 ## [11.8.3](https://github.com/botpress/botpress/compare/v11.8.2...v11.8.3) (2019-04-26)
 

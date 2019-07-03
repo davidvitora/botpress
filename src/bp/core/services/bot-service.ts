@@ -3,6 +3,7 @@ import { BotCreationSchema, BotEditSchema } from 'common/validation'
 import { createForGlobalHooks } from 'core/api'
 import { ConfigProvider } from 'core/config/config-loader'
 import { listDir } from 'core/misc/list-dir'
+import { stringify } from 'core/misc/utils'
 import { ModuleLoader } from 'core/module-loader'
 import { Statistics } from 'core/stats'
 import { TYPES } from 'core/types'
@@ -180,7 +181,7 @@ export class BotService {
 
     // This will regenerate previews for all the bot's languages
     if (actualBot.languages !== updatedBot.languages) {
-      this.cms.recomputeElementsForBot(botId)
+      await this.cms.recomputeElementsForBot(botId)
     }
 
     if (!actualBot.disabled && updatedBot.disabled) {
@@ -394,7 +395,7 @@ export class BotService {
         }
 
         await scopedGhost.ensureDirs('/', BOT_DIRECTORIES)
-        await scopedGhost.upsertFile('/', BOT_CONFIG_FILENAME, JSON.stringify(mergedConfigs, undefined, 2))
+        await scopedGhost.upsertFile('/', BOT_CONFIG_FILENAME, stringify(mergedConfigs), false)
         await scopedGhost.upsertFiles('/', files)
 
         return mergedConfigs
@@ -431,7 +432,7 @@ export class BotService {
     try {
       await this.ghostService.forBot(botId).sync()
 
-      await this.cms.loadContentElementsForBot(botId)
+      await this.cms.loadElementsForBot(botId)
       await this.moduleLoader.loadModulesForBot(botId)
 
       const api = await createForGlobalHooks()
@@ -451,8 +452,8 @@ export class BotService {
       return
     }
 
-    await this.cms.unloadContentElementsForBot(botId)
-    this.moduleLoader.unloadModulesForBot(botId)
+    await this.cms.clearElementsFromCache(botId)
+    await this.moduleLoader.unloadModulesForBot(botId)
 
     const api = await createForGlobalHooks()
     await this.hookService.executeHook(new Hooks.AfterBotUnmount(api, botId))

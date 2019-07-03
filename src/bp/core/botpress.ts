@@ -6,6 +6,7 @@ import { inject, injectable, tagged } from 'inversify'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _, { Partial } from 'lodash'
 import moment from 'moment'
+import ms from 'ms'
 import nanoid from 'nanoid'
 import path from 'path'
 import plur from 'plur'
@@ -55,6 +56,7 @@ export class Botpress {
   version: string
   config!: BotpressConfig | undefined
   api!: typeof sdk
+  _heartbeatTimer?: NodeJS.Timeout
 
   constructor(
     @inject(TYPES.Statistics) private stats: Statistics,
@@ -100,6 +102,7 @@ export class Botpress {
 
   private async initialize(options: StartOptions) {
     this.trackStart()
+    this.trackHeartbeat()
 
     setDebugScopes(process.core_env.DEBUG || (process.IS_PRODUCTION ? '' : 'bp:dialog'))
 
@@ -114,6 +117,7 @@ export class Botpress {
 
     await this.checkJwtSecret()
     await this.loadModules(options.modules)
+    await this.cleanDisabledModules()
     await this.initializeServices()
     await this.checkEditionRequirements()
     await this.deployAssets()
@@ -131,7 +135,7 @@ export class Botpress {
     let appSecret = this.config.appSecret || this.config.jwtSecret
     if (!appSecret) {
       appSecret = nanoid(40)
-      this.configProvider.mergeBotpressConfig({ appSecret })
+      await this.configProvider.mergeBotpressConfig({ appSecret })
       this.logger.debug(`JWT Secret isn't defined. Generating a random key...`)
     }
 
@@ -177,7 +181,7 @@ export class Botpress {
 
   async deployAssets() {
     try {
-      const assets = path.resolve(process.PROJECT_LOCATION, 'assets')
+      const assets = path.resolve(process.PROJECT_LOCATION, 'data/assets')
       await copyDir(path.join(__dirname, '../ui-admin'), `${assets}/ui-admin`)
 
       // Avoids overwriting the folder when developping locally on the studio
@@ -197,6 +201,11 @@ export class Botpress {
   @WrapErrorsWith('Error while discovering bots')
   async discoverBots(): Promise<void> {
     const botsRef = await this.workspaceService.getBotRefs()
+
+    for (const botId of botsRef) {
+      await this.ghostService.forBot(botId).sync()
+    }
+
     const botsIds = await this.botService.getBotsIds()
     const unlinked = _.difference(botsIds, botsRef)
     const deleted = _.difference(botsRef, botsIds)
@@ -320,7 +329,7 @@ export class Botpress {
       await this.hookService.executeHook(new Hooks.AfterEventProcessed(this.api, event))
     }
 
-    this.dataRetentionService.initialize()
+    await this.dataRetentionService.initialize()
 
     const dialogEngineLogger = await this.loggerProvider('DialogEngine')
     this.dialogEngine.onProcessingError = (err, hideStack?) => {
@@ -380,6 +389,13 @@ export class Botpress {
     this.logger.info(`Loaded ${loadedModules.length} ${plur('module', loadedModules.length)}`)
   }
 
+  private async cleanDisabledModules() {
+    const config = await this.configProvider.getBotpressConfig()
+    const disabledModules = config.modules.filter(m => !m.enabled).map(m => path.basename(m.location))
+
+    await this.moduleLoader.disableModuleResources(disabledModules)
+  }
+
   private async startServer() {
     await this.httpServer.start()
     AppLifecycle.setDone(AppLifecycleEvents.HTTP_SERVER_READY)
@@ -402,5 +418,28 @@ Node: ${err.nodeName}`
       'start',
       `version: ${process.BOTPRESS_VERSION}, pro: ${process.IS_PRO_ENABLED}, licensed: ${process.IS_LICENSED}`
     )
+  }
+
+  private trackHeartbeat() {
+    if (this._heartbeatTimer) {
+      clearInterval(this._heartbeatTimer)
+    }
+
+    this._heartbeatTimer = setInterval(async () => {
+      let nbBots = 'N/A'
+      let nbCollabs = 'N/A'
+      try {
+        nbBots = (await this.botService.getBotsIds()).length.toString()
+        nbCollabs = (await this.workspaceService.listUsers()).length.toString()
+      } finally {
+        this.stats.track(
+          'server',
+          'heartbeat',
+          `version: ${process.BOTPRESS_VERSION}, pro: ${process.IS_PRO_ENABLED}, licensed: ${
+            process.IS_LICENSED
+          }, bots: ${nbBots}, collaborators: ${nbCollabs}`
+        )
+      }
+    }, ms('2m'))
   }
 }

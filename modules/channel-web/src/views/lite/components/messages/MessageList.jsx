@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { differenceInMinutes } from '../../utils'
+import differenceInMinutes from 'date-fns/difference_in_minutes'
 
 import MessageGroup from './MessageGroup'
 import Avatar from '../common/Avatar'
@@ -31,7 +31,7 @@ class MessageList extends Component {
       } catch (err) {
         // Discard the error
       }
-    }, 0)
+    }, 50)
   }
 
   handleKeyDown = e => {
