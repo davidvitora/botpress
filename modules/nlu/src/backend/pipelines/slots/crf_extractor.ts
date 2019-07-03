@@ -122,8 +122,11 @@ export default class CRFExtractor implements SlotExtractor {
         const slotName = tag.slice(2)
         const slot = this._makeSlot(slotName, token, intentDef.slots, entities)
         if (tag[0] === BIO.INSIDE && slotCollection[slotName]) {
-          // simply append the source if the tag is inside a slot
-          slotCollection[slotName].source += ` ${token.value}`
+          // prevent cases where entity has multiple tokens e.g. "4 months months"
+          if (!slot.entity || token.end > slot.entity.meta.end) {
+            // simply append the source if the tag is inside a slot
+            slotCollection[slotName].source += ` ${token.value}`
+          }
         } else if (tag[0] === BIO.BEGINNING && slotCollection[slotName]) {
           // if the tag is beginning and the slot already exists, we create need a array slot
           if (Array.isArray(slotCollection[slotName])) {
@@ -162,13 +165,18 @@ export default class CRFExtractor implements SlotExtractor {
   ): sdk.NLU.Slot {
     const slotDef = slotDefinitions.find(slotDef => slotDef.name === slotName)
     const entity =
-      slotDef && entities.find(e => slotDef.entity === e.name && e.meta.start <= token.start && e.meta.end >= token.end)
+      slotDef &&
+      entities.find(
+        e => slotDef.entities.indexOf(e.name) !== -1 && e.meta.start <= token.start && e.meta.end >= token.end
+      )
 
     const value = _.get(entity, 'data.value', token.value)
+    const source = _.get(entity, 'meta.source', token.value)
 
     const slot = {
       name: slotName,
-      value
+      value,
+      source
     } as sdk.NLU.Slot
 
     if (entity) {

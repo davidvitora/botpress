@@ -8,6 +8,7 @@ import { Serialize } from 'cerialize'
 import { gaId, machineUUID } from 'common/stats'
 import { BotpressConfig } from 'core/config/botpress.config'
 import { ConfigProvider } from 'core/config/config-loader'
+import { asBytes } from 'core/misc/utils'
 import { GhostService } from 'core/services'
 import ActionService from 'core/services/action/action-service'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
@@ -18,7 +19,7 @@ import { LogsService } from 'core/services/logs/service'
 import MediaService from 'core/services/media'
 import { NotificationsService } from 'core/services/notification/service'
 import { WorkspaceService } from 'core/services/workspace-service'
-import { RequestHandler, Router, Express } from 'express'
+import { Express, RequestHandler, Router } from 'express'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
 import moment from 'moment'
@@ -32,7 +33,7 @@ import { CustomRouter } from '../customRouter'
 import { checkTokenHeader, needPermissions } from '../util'
 
 const debugMedia = DEBUG('audit:action:media-upload')
-const DEFAULT_MAX_SIZE = 10 // mb
+const DEFAULT_MAX_SIZE = '10mb'
 
 export class BotsRouter extends CustomRouter {
   private actionService: ActionService
@@ -119,10 +120,11 @@ export class BotsRouter extends CustomRouter {
     }
   }
 
-  getNewRouter(path: string, options?: RouterOptions) {
+  getNewRouter(path: string, identity: string, options?: RouterOptions) {
     const router = Router({ mergeParams: true })
     if (_.get(options, 'checkAuthentication', true)) {
       router.use(this.checkTokenHeader)
+      router.use(this.needPermissions('write', identity))
     }
 
     if (!_.get(options, 'enableJsonBodyParser', true)) {
@@ -267,9 +269,9 @@ export class BotsRouter extends CustomRouter {
       this.needPermissions('write', 'bot.flows'),
       this.asyncMiddleware(async (req, res) => {
         const botId = req.params.botId
-        const flowViews = <FlowView[]>req.body
+        const flowViews = <FlowView[]>req.body.dirtyFlows
 
-        await this.flowService.saveAll(botId, flowViews)
+        await this.flowService.saveAll(botId, flowViews, req.body.cleanFlows)
         res.sendStatus(201)
       })
     )
@@ -301,7 +303,7 @@ export class BotsRouter extends CustomRouter {
         cb(new Error(`Invalid mime type (${file.mimetype})`), false)
       },
       limits: {
-        fileSize: _.get(this.botpressConfig, 'fileUpload.maxFileSize', DEFAULT_MAX_SIZE) * 1000 * 1024
+        fileSize: asBytes(_.get(this.botpressConfig, 'fileUpload.maxFileSize', DEFAULT_MAX_SIZE))
       }
     }).single('file')
 

@@ -89,7 +89,7 @@ declare module 'botpress/sdk' {
     /**
      * Called when the module is unloaded, before being reloaded
      * onBotUnmount is called for each bots before this one is called
-     * */
+     */
     onModuleUnmount?: (bp: typeof import('botpress/sdk')) => void
     onFlowChanged?: (bp: typeof import('botpress/sdk'), botId: string, flow: Flow) => void
     /**
@@ -136,6 +136,8 @@ declare module 'botpress/sdk' {
     menuText?: string
     /** Optionnaly specify a link to your page or github repo */
     homepage?: string
+    /** Whether or not the module is likely to change */
+    experimental?: boolean
   }
 
   /**
@@ -293,7 +295,8 @@ declare module 'botpress/sdk' {
 
     export interface SlotDefinition {
       name: string
-      entity: string
+      entities: string[]
+      entity?: string
     }
 
     export interface IntentDefinition {
@@ -372,6 +375,7 @@ declare module 'botpress/sdk' {
       suggestions?: Suggestion[]
       credentials?: any
       nlu?: Partial<EventUnderstanding>
+      incomingEventId?: string
     }
 
     /**
@@ -446,6 +450,11 @@ declare module 'botpress/sdk' {
       readonly isPause?: boolean
     }
 
+    export interface OutgoingEvent extends Event {
+      /* Id of event which is being replied to; only defined for outgoing events */
+      readonly incomingEventId?: string
+    }
+
     export interface Suggestion {
       /** Number between 0 and 1 indicating how confident the module is about its suggestion */
       confidence: number
@@ -512,9 +521,25 @@ declare module 'botpress/sdk' {
 
     export interface CurrentSession {
       lastMessages: DialogTurnHistory[]
+      nluContexts?: NluContext[]
+    }
+
+    /**
+     * They represent the contexts that will be used by the NLU Engine for the next messages for that chat session.
+     *
+     * The TTL (Time-To-Live) represents how long the contexts will be valid before they are automatically removed.
+     * For example, the default value of `1` will listen for that context only once (the next time the user speaks).
+     *
+     * If a context was already present in the list, the higher TTL will win.
+     */
+    export interface NluContext {
+      context: string
+      /** Represent the number of turns before the context is removed from the session */
+      ttl: number
     }
 
     export interface DialogTurnHistory {
+      eventId: string
       incomingPreview: string
       replySource: string
       replyPreview: string
@@ -594,8 +619,10 @@ declare module 'botpress/sdk' {
      * Insert or Update the file at the specified location
      * @param rootFolder - Folder relative to the scoped parent
      * @param file - The name of the file
+     * @param content - The content of the file
+     * @param recordRevision - Whether or not to record a revision @default true
      */
-    upsertFile(rootFolder: string, file: string, content: string | Buffer): Promise<void>
+    upsertFile(rootFolder: string, file: string, content: string | Buffer, recordRevision?: boolean): Promise<void>
     readFileAsBuffer(rootFolder: string, file: string): Promise<Buffer>
     readFileAsString(rootFolder: string, file: string): Promise<string>
     readFileAsObject<T>(rootFolder: string, file: string): Promise<T>
@@ -614,6 +641,7 @@ declare module 'botpress/sdk' {
      * To stop listening, call the `remove()` method of the returned ListenHandle
      */
     onFileChanged(callback: (filePath: string) => void): ListenHandle
+    fileExists(rootFolder: string, file: string): Promise<boolean>
   }
 
   export interface ListenHandle {
@@ -1033,7 +1061,7 @@ declare module 'botpress/sdk' {
      * @param eventDestination - The destination to identify the target
      * @param payloads - One or multiple payloads to send
      */
-    export function replyToEvent(eventDestination: IO.EventDestination, payloads: any[]): void
+    export function replyToEvent(eventDestination: IO.EventDestination, payloads: any[], incomingEventId?: string): void
   }
 
   export type GetOrCreateResult<T> = Promise<{
@@ -1058,6 +1086,7 @@ declare module 'botpress/sdk' {
     export function setAttributes(channel: string, userId: string, attributes: any): Promise<void>
     export function getAllUsers(paging?: Paging): Promise<any>
     export function getUserCount(): Promise<any>
+    export function getAttributes(): Promise<any>
   }
 
   /**
@@ -1239,5 +1268,41 @@ declare module 'botpress/sdk' {
     export function saveFile(botId: string, fileName: string, content: Buffer): Promise<string>
     export function readFile(botId, fileName): Promise<Buffer>
     export function getFilePath(botId: string, fileName: string): string
+
+    /**
+     * Mustache template to render. Can contain objects, arrays, strings.
+     * @example '{{en}}', ['{{nested.de}}'], {notSoNested: '{{fr}}'}
+     */
+    export type TemplateItem = Object | Object[] | string[] | string
+
+    /**
+     * Render a template using Mustache template rendering.
+     * Use recursive template rendering to extract nexted templates.
+     *
+     * @param item TemplateItem to render
+     * @param context Variables to use for the template rendering
+     */
+    export function renderTemplate(item: TemplateItem, context): TemplateItem
+  }
+
+  /**
+   * Utility security-related features offered to developers
+   * to create more secure extensions.
+   */
+  export namespace security {
+    /**
+     * Creates a message signature, which can be used as proof that the message was created on Botpress backend
+     * You can call this method twice to verify the authenticity of a message
+     */
+    export function getMessageSignature(message: string): Promise<string>
+  }
+
+  /**
+   * These features are subject to change and should not be relied upon.
+   * They will eventually be either removed or moved in another namespace
+   */
+  export namespace experimental {
+    export function disableHook(hookName: string, hookType: string, moduleName?: string): Promise<boolean>
+    export function enableHook(hookName: string, hookType: string, moduleName?: string): Promise<boolean>
   }
 }

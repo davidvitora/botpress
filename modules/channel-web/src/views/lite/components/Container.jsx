@@ -9,38 +9,27 @@ import BotInfo from './common/BotInfo'
 import MessageList from './messages/MessageList'
 
 import { getOverridedComponent } from '../utils'
+import { injectIntl } from 'react-intl'
 
-export default class Container extends React.Component {
+class Container extends React.Component {
   state = {
     currentFocus: 'input',
     showConvos: false,
     showBotInfo: false
   }
 
-  // TODO replace this with componentDidUpdate as this method is deprecated
-  componentWillReceiveProps(nextProps) {
-    let showConvos = this.state.showConvos
-    if (!this.props.currentConversation && nextProps.currentConversation) {
-      showConvos = false
-    }
-
-    const convosDiffers =
-      !this.props.currentConversation ||
-      (nextProps.currentConversation && this.props.currentConversation.id !== nextProps.currentConversation.id)
-
-    const showBotInfo =
-      (!showConvos && this.state.showBotInfo) ||
-      (this.props.botInfo.showBotInfoPage && !this.isConvoStarted(nextProps.currentConversation) && convosDiffers)
-
-    if (showConvos != this.state.showConvos || showBotInfo != this.state.showBotInfo) {
-      this.setState({
-        showConvos,
-        showBotInfo
-      })
+  componentDidMount() {
+    if (!this.props.currentConversation && this.props.botInfo.showBotInfoPage) {
+      this.setState({ showBotInfo: true })
     }
   }
 
-  isConvoStarted = conversation => conversation && !!conversation.messages.length
+  componentDidUpdate(prevProps) {
+    if (!prevProps.currentConversation && this.props.currentConversation) {
+      this.setState({ showConvos: false })
+    }
+  }
+
   handleFocusChanged = nextFocus => this.setState({ currentFocus: nextFocus })
   handleToggleShowConvos = () => this.setState({ showConvos: !this.state.showConvos })
   toggleBotInfo = () => this.setState({ showBotInfo: !this.state.showBotInfo })
@@ -77,13 +66,17 @@ export default class Container extends React.Component {
     const Component = getOverridedComponent(this.props.config.overrides, 'composer')
 
     if (Component) {
-      return <Component original={{ Composer }} name={this.props.botName} {...this.props} />
+      return (
+        <Keyboard.Default>
+          <Component original={{ Composer }} name={this.props.botName} {...this.props} />
+        </Keyboard.Default>
+      )
     }
 
     return (
       <Keyboard.Default>
         <Composer
-          placeholder={'Reply to ' + this.props.botName}
+          placeholder={this.props.intl.formatMessage({ id: 'composer.placeholder' }, { name: this.props.botName })}
           send={this.props.onTextSend}
           change={this.props.onTextChanged}
           text={this.props.text}
@@ -170,3 +163,5 @@ export default class Container extends React.Component {
     )
   }
 }
+
+export default injectIntl(Container)

@@ -10,6 +10,13 @@ export class ProcessingError extends Error {
   }
 }
 
+export class BPError extends Error {
+  private hideStack = true
+  constructor(message: string, private code) {
+    super(message)
+  }
+}
+
 export class FlowError extends Error {
   constructor(
     message: string,
@@ -18,5 +25,11 @@ export class FlowError extends Error {
     public readonly nodeName?: string
   ) {
     super(`${message}, Bot: ${botId}, Flow: ${flowName || 'N/A'}, Node: ${nodeName || 'N/A'}`)
+  }
+}
+
+export class TimeoutNodeNotFound extends Error {
+  constructor(message: string) {
+    super(message)
   }
 }

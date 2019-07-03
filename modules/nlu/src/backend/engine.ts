@@ -11,9 +11,12 @@ import { Config } from '../config'
 
 import { DucklingEntityExtractor } from './pipelines/entities/duckling_extractor'
 import PatternExtractor from './pipelines/entities/pattern_extractor'
+import ExactMatcher from './pipelines/intents/exact_matcher'
 import FastTextClassifier from './pipelines/intents/ft_classifier'
+import RegexMatcher from './pipelines/intents/regex_matcher'
 import { createIntentMatcher, findMostConfidentIntentMeanStd } from './pipelines/intents/utils'
 import { FastTextLanguageId } from './pipelines/language/ft_lid'
+import { sanitize } from './pipelines/language/sanitizer'
 import CRFExtractor from './pipelines/slots/crf_extractor'
 import { generateTrainingSequence } from './pipelines/slots/pre-processor'
 import Storage from './storage'
@@ -31,6 +34,8 @@ export default class ScopedEngine implements Engine {
   private _preloaded: boolean = false
   private _lmLoaded: boolean = false
   private _currentModelHash: string
+  private _exactIntentMatcher: ExactMatcher
+  private _regexIntentMatcher: RegexMatcher
 
   private readonly intentClassifier: FastTextClassifier
   private readonly langDetector: LanguageIdentifier
@@ -199,11 +204,15 @@ export default class ScopedEngine implements Engine {
       throw new Error(`No such model. Hash = "${modelHash}"`)
     }
 
-    await this.intentClassifier.load(intentModels)
-
     const trainingSet = flatMap(intents, intent => {
-      return intent.utterances.map(utterance => generateTrainingSequence(utterance, intent.slots, intent.name))
+      return intent.utterances.map(utterance =>
+        generateTrainingSequence(utterance, intent.slots, intent.name, intent.contexts)
+      )
     })
+
+    this._exactIntentMatcher = new ExactMatcher(trainingSet)
+    this._regexIntentMatcher = new RegexMatcher(trainingSet, this.logger)
+    await this.intentClassifier.load(intentModels)
 
     await this.slotExtractor.load(trainingSet, skipgramModel.model, crfModel.model)
 
@@ -301,6 +310,26 @@ export default class ScopedEngine implements Engine {
     text: string,
     includedContexts: string[]
   ): Promise<{ intents: sdk.NLU.Intent[]; intent: sdk.NLU.Intent; includedContexts: string[] }> {
+    const exactIntent = this._exactIntentMatcher.exactMatch(sanitize(text.toLowerCase()), includedContexts)
+
+    if (exactIntent) {
+      return {
+        includedContexts,
+        intent: exactIntent,
+        intents: [exactIntent]
+      }
+    }
+
+    const regexIntent = this._regexIntentMatcher.match(text, includedContexts)
+
+    if (regexIntent) {
+      return {
+        includedContexts,
+        intent: regexIntent,
+        intents: [regexIntent]
+      }
+    }
+
     const intents = await this.intentClassifier.predict(text, includedContexts)
     const intent = findMostConfidentIntentMeanStd(intents, this.confidenceTreshold)
     intent.matches = createIntentMatcher(intent.name)

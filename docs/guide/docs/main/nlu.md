@@ -80,7 +80,7 @@ Here's an example of the structure of an incoming event processed by Botpress Na
 }
 ```
 
-You can use that metadata in your flows to create transitions when a specific intent is understood inside a specific flow. You can learn more about flows and transitions [here](./dialogs).
+You can use that metadata in your flows to create transitions when a specific intent is understood inside a specific flow. You can learn more about flows and transitions [here](./dialog).
 
 ##### Example
 
@@ -169,7 +169,7 @@ Botpress Native NLU offers a handful of system entity extraction thanks to [Face
 
 At the moment, Duckling is hosted on our remote servers. If you don't want your data to be sent to our servers, you can either disable this feature by setting `ducklingEnabled` to `false` or host your own duckling server and change the `ducklingURL` to the `data/global/config/nlu.json` config file.
 
-For instructions on how to host your own Duckling server, please check the section [Hosting & Environment](../advanced/hosting)
+For instructions on how to host your own Duckling server, please check the [Deployment](../advanced/hosting) section.
 
 ##### Example
 
@@ -341,9 +341,7 @@ slots : {
 
 ### Slot Filling
 
-As of now when you define an intent slot, it is considered as optional. If it's mandatory for a desired task, you'll have to handle slot filling yourself in your conversational flow design using [Botpress Flow Builder](./dialogs). We plan to add suppport for **required slots** with automatic slot filling.
-
-**TODO provide example**
+Slot filling is the process of gathering information required by an intent. This information is defined as _slots_ as we mentioned in the above section. Previously, slot filling was made manually and would result in a lot of manipulation. Since 11.8 you can use the Slot skill to help with slot filling. Please refer to the [Slot Skill tutorial](../tutorials/skill-slot) for further details.
 
 ## External NLU Providers
 

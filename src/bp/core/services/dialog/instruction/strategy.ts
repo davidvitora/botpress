@@ -74,6 +74,7 @@ export class ActionStrategy implements InstructionStrategy {
     debug.forBot(botId, `[${event.target}] render element "${outputType}"`)
 
     const message: IO.DialogTurnHistory = {
+      eventId: event.id,
       incomingPreview: event.preview,
       replyConfidence: 1.0,
       replySource: 'dialogManager',
@@ -98,7 +99,7 @@ export class ActionStrategy implements InstructionStrategy {
 
     const eventDestination = _.pick(event, ['channel', 'target', 'botId', 'threadId'])
     const renderedElements = await this.cms.renderElement(outputType, args, eventDestination)
-    await this.eventEngine.replyToEvent(eventDestination, renderedElements)
+    await this.eventEngine.replyToEvent(eventDestination, renderedElements, event.id)
 
     return ProcessingResult.none()
   }
